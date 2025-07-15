@@ -1,0 +1,230 @@
+/* public/styles/widget.css */
+
+/* 1) Launcher link inherits main-nav.navitem styling + our tweaks */
+.unboxd-navlink {
+  float: left;
+  display: block;
+  font-size: 1rem;
+  line-height: 17px;
+  text-transform: uppercase;
+  letter-spacing: .07692308em;
+  margin-left: 15px;
+  color: #556678;             /* default nav link color */
+  cursor: pointer;
+  text-decoration: none;
+}
+.unboxd-navlink:hover {
+  color: #F27405;             /* hover accent */
+}
+.unboxd-navlink svg {
+  width: 30px;
+  height: 30px;
+  vertical-align:top;
+  fill: currentColor;         /* let CSS color the SVG */
+}
+
+/* 2) Overlay */
+#unboxd-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(20, 23, 28, 0.85);   /* #14171C at 85% */
+  z-index: 10000;
+}
+
+/* 3) Modal container */
+#unboxd-modal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #2C343F;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  z-index: 10001;
+
+  /* inherit Letterboxd typography */
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  color: #556678;
+  max-width: 90%;
+}
+
+/* Heading accent */
+#unboxd-modal h2 {
+  margin-top: 0;
+  color: #00B021;            /* bright green accent */
+  font-size: 1.25rem;
+}
+
+/* Heading accent */
+#unboxd-modal h2 > a {
+  color: #00B021;
+}
+
+/* Movie list placeholder */
+#unboxd-list {
+  margin: 12px 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Close button */
+#unboxd-close {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: #F27405;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+}
+#unboxd-close:hover {
+  background-color: #E56300;
+}
+
+.unboxd-card {
+  display: flex;
+  gap: 1rem;
+}
+.poster-container img.film-poster {
+  width: 120px;
+  border-radius: 4px;
+}
+.film-info { flex: 1; }
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+.rating-block {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+.rating-block .stars { color: #f5c518; /* gold */ }
+.sluglists { font-size: 0.85rem; margin: 0.5rem 0; }
+.sluglists a { text-decoration: none; color: #3498db; }
+.genres { margin-bottom: 0.5rem}
+.genres div { color: #8899a6}
+.genres a {
+  color: #3498db; /* link color */
+  text-decoration: none;
+}
+.actions { display: flex; align-items: flex-end; gap: 0.5rem; }
+.btn { padding: 0.5em 1em; border: none; border-radius: 3px; cursor: pointer; }
+.btn-watched { background: #2ecc71; color: white; }
+.btn-watchlist { background: #e67e22; color: white; }
+
+.overview{
+  margin-top: 0.5rem;
+  color: #8899a6; /* muted text */
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* make the entire button area one row */
+#unboxd-buttons-set {
+  display: flex;
+  align-items: center;            /* vertically center everything */
+  flex-wrap: nowrap;              /* never wrap into multiple lines */
+  margin-top: 1rem;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+/* group the watch/watchlist/rate into one mini-flex */
+#unboxd-buttons-set .actions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: end;
+  gap: 0.5rem;
+}
+
+/* make sure buttons don’t have unexpected margins */
+#unboxd-buttons-set button {
+  margin: 0;
+}
+
+/* if you need them to shrink/grow in particular ways you can also add */
+#unboxd-buttons-set > button { /* the Close button */
+  flex: 0 0 auto;
+}
+#unboxd-buttons-set .actions {
+  flex: 1 1 auto; /* take the rest of the row */
+}
+
+/* push everything after Close over to the right */
+#unboxd-buttons-set > #unboxd-close {
+  margin-right: auto;
+}
+
+.btn-next-movie {
+  background-color: #3498db; /* blue accent */
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.rating-row{
+  display:flex;
+  direction: row; 
+  align-items: center;
+  justify-items: center
+}
+
+.rating-widget {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  user-select: none;
+  cursor: pointer;
+}
+
+.star-input {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.star-input svg {
+  position: absolute;
+  top: 6px;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+
+.star-bg {
+  fill: #556678; /* Gray */
+}
+
+.star-fg {
+  fill: #40bcf4;
+  clip-path: inset(0 100% 0 0); /* Initially empty */
+}
+
+/* Highlight only on hover — this is just a visual cue, not state */
+.star-input:hover .star-fg {
+  fill: #40bcf4; /* Light blue */
+}
+
+/* Rating states */
+.star-input.full .star-fg {
+  clip-path: inset(0 0 0 0); /* Full */
+}
+
+.star-input.half .star-fg {
+  clip-path: inset(0 50% 0 0); /* Half */
+}

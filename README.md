@@ -28,3 +28,31 @@ unboxd/
 └── utils/
     ├── letterboxdApi.js  # Incremental fetch helpers & CSRF token grabbers
     └── tmdbApi.js        # TMDb popular-movies wrapper
+
+Tasks are rated from 1-5 on difficulty and time it'd take to complete. 
+
+## TODO - MUST
+# Have an ending failsfe. if no more movies to fetch from, display a message. "Thank you for choosing Unboxd. You're a true cinephile". With a nice screen like achievement. 
+
+* fix the logo and finalize the webstore-related design implications (4). 
+* TODO: hover effect to the buttons 
+* TODO: limit the themes to 5. 
+## TODO - SHOULD
+* improve the popup html, have it the control center (toggling on/off the icon injection.). (3). 
+
+
+## TODO - COULD
+* Some form of stats for how many logged etc. this would be shown on the popup, maybe some simple gamification. (3)
+* The movie modal should not resize after clicking next. Maybe add a loading circle in the next button after clicking (instead of going back to the original state). 
+
+## TODO - WAY LATER
+* Show the messages + ui updates before the result of the API call. Better user experience.
+* Have some kind of reset functionality. (2)
+* on the modal show the language of the movie (two-letter system to full movie name ({flag_icon}) resolver) (1). 
+* Optimixe the code. (TRY PREFETCHING IMAGE URLS ETC to see if it improves the user experience, OR make sure smart naming is called once per movie since it's costly.)
+* Comment, modluarize, make more readable, and document the code 
+* Test the extension and have failsafe alternatives. (For instance if a fetch doesn't work, still have a solution). 
+
+
+
+## DONE

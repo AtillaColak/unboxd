@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "unboxd",
+  "version": "0.1.0",
+  "description": "A Letterboxd browser extension to make the retrospective film logging process painless.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://letterboxd.com/*",
+    "https://api.themoviedb.org/3/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["inject.js"],
+      "matches": ["https://letterboxd.com/*"]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://letterboxd.com/*"],
+      "js": ["helper-functionalities.js", "synchronization-functions.js", "contentScript.js"],
+      "css": ["styles/widget.css"],
+      "type": "module"
+    }
+  ],
+  "action": {
+    "default_title": "Unboxd",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html"
+}
