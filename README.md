@@ -10,9 +10,3 @@ If you'd like to contribute to unboxd (which is an open-source extension to begi
 
 ## Further Improvements 
 If there's enough demand, I'll update unboxd in the future and improve it with new functionalities I already have in mind. So the version available in the chrome store is the first version. 
-
-## TODO TODAY
-* fix the logo and finalize the webstore-related design implications. 
-* more code documentation and modularization. 
-* Optimize the code. (such as making sure smart naming is called once per movie since it's costly timewise.)
-* improved the error handling and more fail-safe code. 
