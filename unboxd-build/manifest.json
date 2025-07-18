@@ -9,8 +9,7 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://letterboxd.com/*",
-    "https://api.themoviedb.org/3/*"
+    "https://letterboxd.com/*"
   ],
   "background": {
     "service_worker": "background.js",
