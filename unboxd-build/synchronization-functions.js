@@ -71,7 +71,7 @@ async function collectNewlyWatched(lastMovieId, username = 'att1lathehun') {
   let maxPage = Infinity;
   const parser = new DOMParser();  
   const newMovies = [];
-  if (lastMovieId === -1) return collectFullWatchedMovies(username); 
+  if (lastMovieId === -1) return collectFullWatchedMovies(username);  // synchronize all watched movies, first sync. 
 
   let foundLast = false;
   while (page <= maxPage && !foundLast) {
@@ -114,7 +114,6 @@ async function collectNewlyWatched(lastMovieId, username = 'att1lathehun') {
   return newMovies;
 }
 
-// TODO: FIX MULTIPLE WATCHLIST
 async function collectFullWatchlistedMovies(username = 'att1lathehun') {
   const parser = new DOMParser();
   const allMovies = [];
@@ -164,7 +163,7 @@ async function collectFullWatchlistedMovies(username = 'att1lathehun') {
  */
 async function collectNewlyWatchlisted(lastWatchlistId, username = 'att1lathehun') {
   if (lastWatchlistId === -1) {
-    return collectFullWatchlistedMovies(username);
+    return collectFullWatchlistedMovies(username); // synchronize all watched movies, first sync. 
   }
 
   const parser = new DOMParser();

@@ -1,46 +1,17 @@
-# unboxd
-## W slogan
-A Letterboxd browser extension to make the retrospective film logging process painless. Something like this is especially annoying if you are new to the app and you have a ton of movies you've watched and would've liked already logged in your newly created account. Given that's an impossibly arbitrary ideal, **unboxd** is as close to it as any solution could get. 
+![](unboxd-build/icons/unboxd.png)
+<i>**PS**: if you're not seeing the full icon logo, why are you using github on light mode to begin with?</i>
 
-## Features
-- Seamless Auth: existing Letterboxd session—no extra login required.
-- Sync: Fetches new ratings via `https://letterboxd.com/{username}/films/by/date/page/{N}/` and tracks only new entries since last sync.
-- Resrospective logging: Shuffles a pool of popular films (pulled from TMDb) and presents *N* (default 5) unrated titles each day.
-- **OPTIONAL?**: simple gamification. progress and levels achieved through logging n number of movies. 
+## What's this? 
+A Letterboxd browser extension to make the retrospective film logging process painless. Something like this is especially annoying if you are new to the app and you have a ton of movies you've watched and would've liked already logged in your newly created account. Given that's an impossibly arbitrary ideal, **unboxd** is closer to it than any existing solution get.
 
-By the time of writing this documentation, I will likely make the extension a Letterboxd HTML injection script that would add a widget to the app header. Widget opens up a modal with the above functionalities. 
-Probably **offline-first storage** where top-10k movies from some open-source movie database are saved at `chrome.local.storage`. A column like `isRated` to eliminate the ones the user has already rated. Maybe a lookup table of `ratedMovieIds`?
+## Collaboration (or Contact)
+If you'd like to contribute to unboxd (which is an open-source extension to begin with), email me and I'll grant you access to the repository. 
 
-The logging will be handled by simulating Letterboxd backend api calls with the user's session token (will have to look at the Letterboxd auth in more detail). 
-
-Structure probably: 
-```bash
-unboxd/
-├── manifest.json         # Chrome MV3 manifest
-├── background.js         # Service worker: daily scheduler, storage cleanup
-├── contentScript.js      # UI injection, DOM interactions, request replay
-├── options.html          # (Optional) Settings: daily count, themes
-├── popup.html            # Manual sync & quick overview
-├── styles/
-│   └── widget.css        # Letterboxd-style widget styling
-├── assets/
-│   └── icons/            # Extension icons
-└── utils/
-    ├── letterboxdApi.js  # Incremental fetch helpers & CSRF token grabbers
-    └── tmdbApi.js        # TMDb popular-movies wrapper
-
-Tasks are rated from 1-5 on difficulty and time it'd take to complete. 
-
-## TODO - MUST
-* Test the extension and have failsafe alternatives. (For instance if a fetch doesn't work, still have a solution). 
-
-
---## TODO - SHOULD--
---## TODO - COULD--
---## TODO - WAY LATER--
-
+## Further Improvements 
+If there's enough demand, I'll update unboxd in the future and improve it with new functionalities I already have in mind. So the version available in the chrome store is the first version. 
 
 ## TODO TODAY
-* fix the logo and finalize the webstore-related design implications (4). 
-* Optimixe the code. (such as making sure smart naming is called once per movie since it's costly timewise.)
-* Comment, modularize, make more readable, and document the code 
+* fix the logo and finalize the webstore-related design implications. 
+* more code documentation and modularization. 
+* Optimize the code. (such as making sure smart naming is called once per movie since it's costly timewise.)
+* improved the error handling and more fail-safe code. 

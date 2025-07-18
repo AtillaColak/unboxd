@@ -1,3 +1,4 @@
+// CLICK EVENT LISTENERS
 document.getElementById('toggle-ext').addEventListener('click', async () => {
   const checkbox = document.getElementById('toggle-ext');
   const store = await chrome.storage.local.get(["isSessionActive"]);
@@ -8,25 +9,24 @@ document.getElementById('toggle-ext').addEventListener('click', async () => {
   checkbox.checked = newState;
 });
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const checkbox = document.getElementById('toggle-ext');
-  const store = await chrome.storage.local.get(["isSessionActive"]);
-
-  checkbox.checked = !!store["isSessionActive"];
-});
-
 document.getElementById("sync-btn").addEventListener('click', async () => {
   chrome.runtime.sendMessage({
     type: 'RESET_UNBOXD'
   });
 });
 
+// DOM EVENT LISTENERS
+document.addEventListener('DOMContentLoaded', async () => {
+  const checkbox = document.getElementById('toggle-ext');
+  const store = await chrome.storage.local.get(["isSessionActive"]);
+
+  checkbox.checked = !!store["isSessionActive"];
+});
+
 document.addEventListener('DOMContentLoaded', async () => {
   const checkbox = document.getElementById('toggle-ext');
   const store = await chrome.storage.local.get(["isSessionActive"]);
   checkbox.checked = !!store["isSessionActive"];
-
-  const contentContainer = document.getElementById('popup-content');
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs[0];
@@ -50,6 +50,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 });
 
+document.addEventListener('DOMContentLoaded', async () => {
+  await renderStats();
+});
+
+// HELPER FUNCTIONS 
 function renderStatusMessage(text, type) {
   const contentContainer = document.getElementById('popup-content');
 
@@ -82,8 +87,4 @@ async function renderStats() {
     </div>
   `;
 }
-
-document.addEventListener('DOMContentLoaded', async () => {
-  await renderStats();
-});
 

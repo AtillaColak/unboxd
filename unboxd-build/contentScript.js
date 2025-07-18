@@ -125,7 +125,6 @@ window.addEventListener('message', event => {
 
   const { username, csrfToken } = event.data;
   
-
   // 3) Forward to background
   chrome.runtime.sendMessage({
     type: 'LETTERBOXD_INIT',
@@ -205,6 +204,7 @@ async function showMovie(i) {
         chrome.runtime.sendMessage({ type: 'FETCH_RANDOM_MOVIE' });
       }
     };
+
     const preloadLink = document.createElement("link");
     preloadLink.rel = "preload";
     preloadLink.as = "image";
@@ -278,7 +278,7 @@ async function showMovie(i) {
       let newRating = Math.min(5, Math.max(0, (x / rect.width) * 5));
       currentRating = Math.round(newRating * 2) / 2;
       paintStars(currentRating);
-      // select components having the css clas star-fg and change the fill color to #f5c518
+      // select components having the css class star-fg and change the fill color to #f5c518
       widget.querySelectorAll('.star-fg').forEach(fg => {
         fg.style.fill = '#f5c518'; // Gold
       });
