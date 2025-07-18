@@ -92,6 +92,7 @@
 .unboxd-card {
   display: flex;
   gap: 1rem;
+  overflow:hidden
 }
 .poster-container img.film-poster {
   width: 120px;
@@ -174,6 +175,14 @@
   cursor: pointer;
 }
 
+.btn-next-movie:hover{
+  background-color: #136399;
+}
+
+.btn-watchlist:hover{
+  background-color: #b6641c;
+}
+
 .rating-row{
   display:flex;
   direction: row; 
@@ -227,4 +236,56 @@
 
 .star-input.half .star-fg {
   clip-path: inset(0 50% 0 0); /* Half */
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.unboxd-sync-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(to right, #14171C, #2C343F);
+  color: white;
+  padding: 1em 1.5em;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  font-family: sans-serif;
+  animation: fadeIn 0.3s ease;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+}
+
+.toast-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.toast-message {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }

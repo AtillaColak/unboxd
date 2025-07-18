@@ -9,9 +9,7 @@ function todayString() {
   return new Date().toISOString().split('T')[0]; // “YYYY-MM-DD”
 }
 
-// On first install, seed global defaults
-chrome.runtime.onInstalled.addListener(async () => {
-  // 1. Load your bundled movies.json
+async function seedUnboxdDefaults() {
   let initialMovies = [];
   let movies = [];
   try {
@@ -29,13 +27,16 @@ chrome.runtime.onInstalled.addListener(async () => {
     console.warn('Could not load bundled movies.json, defaulting to []', e);
   }
 
-  // 2. Seed storage with your defaults
-  chrome.storage.local.set({
-    [GLOBAL_KEYS.LAST_WATCHED]:    -1,
+  await chrome.storage.local.set({
+    [GLOBAL_KEYS.LAST_WATCHED]: -1,
     [GLOBAL_KEYS.LAST_WATCHLISTED]: -1,
-    [GLOBAL_KEYS.MOVIES]:          movies
+    [GLOBAL_KEYS.MOVIES]: movies,
+    "isSessionActive": true
   });
-});
+}
+
+// On first install, seed global defaults
+chrome.runtime.onInstalled.addListener(seedUnboxdDefaults);
 
 chrome.runtime.onMessage.addListener(async (msg, sender) => {
   if (msg.type === 'LETTERBOXD_INIT') {
@@ -69,7 +70,8 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
         `${prevUsername}_lastSynced`,
         `${prevUsername}_lastWatchedMovieId`,
         `${prevUsername}_lastWatchlistedMovieId`,
-        `${prevUsername}_movies`
+        `${prevUsername}_movies`, 
+        "loggedMovies"
       ];
       await chrome.storage.local.remove(keysToRemove);
       console.log(`Unboxd: Cleared data for previous user ${prevUsername}`);
@@ -102,7 +104,24 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
     }
   }
 
-    if (msg.type === 'SYNC_RESULTS') {
+  if (msg.type === "RESET_UNBOXD") {
+    // Step 1: Wipe ALL local storage
+    await chrome.storage.local.clear();
+
+    // Step 2: Run the initial seeding logic again
+    await seedUnboxdDefaults();
+
+    // Step 3: Optionally notify the user via toast
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (activeTab?.id) {
+      chrome.tabs.sendMessage(activeTab.id, {
+        type: "RESET_COMPLETE",
+        message: "Unboxd has been fully reset."
+      });
+    }
+  }
+
+  if (msg.type === 'SYNC_RESULTS') {
     const { username, newlyWatched, newlyWatchlisted } = msg;
 
     // build your storage keys
@@ -139,7 +158,12 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
       [moviesKey]:        updatedMovies
     });
 
-    console.log(`Sync complete for ${username}: +${newlyWatched.length} watched, +${newlyWatchlisted.length} watchlisted.`);
+    chrome.tabs.sendMessage(sender.tab.id, {
+      type: 'SYNC_COMPLETE',
+      username: username,
+      newWatchedLength: newlyWatched.length,
+      newWatchlistedLength: newlyWatchlisted.length
+    });
   }
 });
 
@@ -157,6 +181,9 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
     const pool = store[moviesKey] ?? store[GLOBAL_KEYS.MOVIES] ?? [];
     if (!pool.length) {
       console.warn('No movies to pick from!');
+      chrome.tabs.sendMessage(sender.tab.id, {
+        type: "UNBOXD_COMPLETED"
+      })
       return;
     }
 
@@ -170,5 +197,33 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
       type: 'RANDOM_MOVIE',
       movie: choice
     });
+  }
+});
+
+
+chrome.runtime.onMessage.addListener(async (msg) => {
+  if (msg.type === 'REMOVE_MOVIE') {
+    const movieToRemove = msg.movie;
+    chrome.storage.local.get(null, (store) => {
+      const username = store.activeUsername;
+      const moviesKey = `${username}_movies`;
+
+      let movieList = store[moviesKey] || [];
+
+      movieList = movieList.filter(m =>
+        m.title !== movieToRemove.title
+      );
+
+      chrome.storage.local.set({ [moviesKey]: movieList }, () => {
+        console.log(`Removed "${movieToRemove.title}" from ${username}_movies`);
+      });
+    });
+    
+    let loggedMovies = await chrome.storage.local.get("loggedMovies"); 
+    let movies = loggedMovies["loggedMovies"] ?? 0; 
+    movies++; 
+    chrome.storage.local.set({
+      "loggedMovies": movies 
+    })
   }
 });

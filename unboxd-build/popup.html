@@ -1,14 +1,215 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Unboxd Overview</title>
-  <link rel="stylesheet" href="styles/widget.css">
+  <link rel="stylesheet" href="styles/widget.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 1rem;
+      background: linear-gradient(70deg, #14171C, #2C343F);
+      color: white;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      width: 300px;
+      box-sizing: border-box;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-self: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .logo svg {
+      width: 140px;
+      height: auto;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin: 0;
+      color: #556678;
+    }
+
+    #sync-btn {
+      cursor: pointer;
+      margin-right: 0.5rem;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 22px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #555;
+      transition: 0.3s;
+      border-radius: 22px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #01e054;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    #popup-status {
+      font-size: 0.9rem;
+      color: #ccc;
+      min-height: 1em;
+    }
+
+    footer {
+      margin-top: 1.5rem;
+      border-top: 1px solid #2c343f;
+      padding-top: 1rem;
+      font-size: 0.85rem;
+      color: #aaa;
+      text-align: center;
+    }
+
+    footer a {
+      color: #40bcf4;
+      text-decoration: none;
+      margin: 0 0.25rem;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .refresh-icon svg {
+      transition: transform 0.2s ease;
+    }
+
+    .refresh-icon:hover svg {
+      transform: rotate(20deg); /* Optional: subtle hover rotation */
+    }
+
+    .unboxd-stats-widget {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem;
+      background-color: #1f242c;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      box-shadow: 0 0 0 1px #2c343f;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+
+    .stat-label {
+      color: #aaa;
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #40bcf4;
+    }
+
+  </style>
 </head>
 <body>
-  <h1>Unboxd</h1>
-  <button id="sync-btn">Sync Now</button>
-  <div id="popup-status"></div>
+  <header>
+    <div class="logo">
+      <!-- Your Unboxd Logo SVG -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 175.88 37.57" width="120">
+        <defs>
+          <style>
+            .cls-1 { fill: #fff; }
+            .cls-2 { fill: #40bcf4; }
+            .cls-3 { fill: #01e054; }
+            .cls-4 { fill: #ff8000; }
+          </style>
+        </defs>
+        <g>
+          <path class="cls-1" d="M0,28.04V11.3h8.79v15.32c0,2.9,1.13,4.32,3.63,4.32,2.65,0,4.37-1.57,4.37-4.86v-14.78h8.79v25.68h-8.79v-3.98c-1.38,2.65-3.88,4.57-8.15,4.57-4.96,0-8.64-3.04-8.64-9.53Z"/>
+          <path class="cls-1" d="M30.79,11.3h8.79v4.12c1.38-2.65,4.17-4.81,8.45-4.81,4.96,0,8.4,3.09,8.4,9.67v16.69h-8.79v-14.93c0-2.9-1.13-4.32-3.68-4.32s-4.37,1.57-4.37,4.86v14.39h-8.79V11.3Z"/>
+          <path class="cls-4" d="M78.22,10.61c-3.88,0-6.53,2.06-8.01,4.52V0h-8.79v36.98h8.79v-3.98c1.28,2.75,4.13,4.57,7.96,4.57,6.04,0,10.9-4.42,10.9-13.26v-.4c0-8.78-4.86-13.3-10.85-13.3ZM80.13,24.31c0,4.22-1.76,6.53-5.05,6.53s-5.11-2.21-5.11-6.58v-.39c0-4.33,1.91-6.63,5.11-6.63s5.05,2.16,5.05,6.67v.4Z"/>
+          <path class="cls-3" d="M105.71,10.61c-7.95,0-14.09,5.2-14.09,13.45v.4c0,8.29,6.14,13.11,14.04,13.11s14.05-5.01,14.05-13.36v-.39c0-8.15-6.09-13.21-14-13.21ZM110.77,24.31c0,4.27-1.77,6.72-5.06,6.72s-5.1-2.4-5.1-6.82v-.39c0-4.32,1.81-6.63,5.1-6.63s5.06,2.4,5.06,6.72v.4Z"/>
+          <polygon class="cls-2" points="127.81 23.91 119.8 11.3 129.92 11.3 133.9 18.07 137.78 11.3 146.81 11.3 138.71 23.23 147.6 36.98 137.48 36.98 132.92 29.32 128.25 36.98 119.26 36.98 127.81 23.91"/>
+          <path class="cls-1" d="M167.09,0v14.93c-1.47-2.6-3.88-4.32-7.91-4.32-6.08,0-10.9,4.66-10.9,13.4v.4c0,8.88,4.87,13.16,10.81,13.16,3.88,0,6.72-2.12,8-4.77v4.18h8.79V0h-8.79ZM167.34,24.26c0,4.37-1.97,6.58-5.16,6.58s-4.96-2.21-4.96-6.53v-.4c0-4.46,1.77-6.67,5.06-6.67s5.06,2.3,5.06,6.63v.39Z"/>
+        </g>
+      </svg>
+    </div>
+  </header>
+
+  <div id="unboxd-stats">
+    <!-- here would go some nicely styles statistics shown (how many movies waitlisted or rated with unboxd so far) -->
+  </div>
+
+  <div id="popup-content">
+    <div class="toggle-row">
+      <label for="toggle-ext">unboxd Status</label>
+      <label class="switch">
+        <input type="checkbox" id="toggle-ext" checked />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="toggle-row">
+      <label for="manual-sync">unboxd Reset (warning!)</label>
+      <div id="sync-btn" class="refresh-icon" title="Sync Now" aria-label="Sync Now">
+        <svg width="25px" height="25px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#40bcf4"><path fill-rule="evenodd" clip-rule="evenodd" d="M2.006 8.267L.78 9.5 0 8.73l2.09-2.07.76.01 2.09 2.12-.76.76-1.167-1.18a5 5 0 0 0 9.4 1.983l.813.597a6 6 0 0 1-11.22-2.683zm10.99-.466L11.76 6.55l-.76.76 2.09 2.11.76.01 2.09-2.07-.75-.76-1.194 1.18a6 6 0 0 0-11.11-2.92l.81.594a5 5 0 0 1 9.3 2.346z"/></svg>
+      </div>
+    </div>
+    
+  </div>
+
+
+  <footer>
+    <span>Follow me:</span>
+    <a href="https://github.com/AtillaColak" target="_blank">GitHub</a> •
+    <a href="https://letterboxd.com/Att1laTheHun/" target="_blank">Letterboxd</a>
+  </footer>
+
   <script src="popup.js"></script>
 </body>
 </html>

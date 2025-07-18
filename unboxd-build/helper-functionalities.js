@@ -75,8 +75,8 @@ async function fetchMovieDetails(movieName, year, overview){
     slug,
     url,
     posterUrl,
-    genres,
-    themes,
+    genres: genres.slice(0, 4),
+    themes: themes.slice(0, 3),
     averageRating,
     ratingCount,
   };
@@ -145,4 +145,64 @@ function getSimilarityScore(a, b) {
     if (wordsB.has(word)) matches++;
   }
   return matches;
+}
+
+function importConfettiAndRun() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const confettiCount = 100;
+  const confetti = [];
+
+  for (let i = 0; i < confettiCount; i++) {
+    confetti.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      r: Math.random() * 6 + 4,
+      d: Math.random() * confettiCount,
+      color: getColor(),
+      tilt: Math.random() * 10 - 10,
+      tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+      tiltAngle: 0
+    });
+  }
+
+  function getColor() {
+    const colors = ['#ff8000', '#40bcf4', '#01e054', '#ffffff'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    confetti.forEach((confetto) => {
+      ctx.beginPath();
+      ctx.lineWidth = confetto.r / 2;
+      ctx.strokeStyle = confetto.color;
+      ctx.moveTo(confetto.x + confetto.tilt + confetto.r / 4, confetto.y);
+      ctx.lineTo(confetto.x + confetto.tilt, confetto.y + confetto.tilt + confetto.r);
+      ctx.stroke();
+    });
+
+    update();
+    requestAnimationFrame(draw);
+  }
+
+  function update() {
+    confetti.forEach((confetto, i) => {
+      confetto.tiltAngle += confetto.tiltAngleIncremental;
+      confetto.y += (Math.cos(confetto.d) + 3 + confetto.r / 2) / 2;
+      confetto.x += Math.sin(confetto.d);
+      confetto.tilt = Math.sin(confetto.tiltAngle - i / 3) * 15;
+
+      // respawn
+      if (confetto.y > canvas.height) {
+        confetto.x = Math.random() * canvas.width;
+        confetto.y = -20;
+      }
+    });
+  }
+
+  draw();
 }

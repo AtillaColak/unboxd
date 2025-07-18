@@ -1,99 +1,112 @@
-(() => {
+(async () => {
 
-  const signInLabel = document.querySelector(
-    '#header > section > div.react-component > div > nav > ul > li.navitem.sign-in-menu > a > span.label'
-  );
-
-  if (signInLabel && signInLabel.textContent.trim().toLowerCase() === 'sign in') {
-    console.log('Unboxd: User is not signed in. Extension disabled.');
-    return;
+  let sessionStatus = await chrome.storage.local.get(["isSessionActive"]);
+  
+  function removeUnboxdUI() {
+    document.querySelector('#unboxd-launcher')?.closest('li')?.remove();
+    document.querySelector('#unboxd-overlay')?.remove();
+    document.querySelector('#unboxd-modal')?.remove();
   }
 
-  // exact LI in the main nav where “Films” lives
-  const navList = document.querySelector(
-    '#header > section > div.react-component > div > nav > ul'
-  );
-  if (!navList) return;
+  // Helper to inject Unboxd nav item
+  function injectUnboxdLauncher() {
+    const navList = document.querySelector(
+      '#header > section > div.react-component > div > nav > ul'
+    );
+    if (!navList || document.querySelector('#unboxd-launcher')) return;
 
-  // 1) Make a new LI
-  const li = document.createElement('li');
-  li.classList.add('navitem', 'unboxd-navitem');
+    const li = document.createElement('li');
+    li.classList.add('navitem', 'unboxd-navitem');
 
-  // create our launcher link
-  const link = document.createElement('a');
-  link.id = 'unboxd-launcher';
-  link.href = '#';
-  link.classList.add('unboxd-navlink');
-  link.setAttribute('aria-label', 'Open Unboxd widget');
-  link.innerHTML = `
-<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 89.96 89.96">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: #2C343F;
-      }
+    const link = document.createElement('a');
+    link.id = 'unboxd-launcher';
+    link.href = '#';
+    link.classList.add('unboxd-navlink');
+    link.setAttribute('aria-label', 'Open Unboxd widget');
+    link.innerHTML = `
+  <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 89.96 89.96">
+    <defs>
+      <style>
+        .cls-1 {
+          fill: #2C343F;
+        }
 
-      .cls-2 {
-        fill: #40bcf4;
-      }
+        .cls-2 {
+          fill: #40bcf4;
+        }
 
-      .cls-3 {
-        fill: #01e054;
-      }
+        .cls-3 {
+          fill: #01e054;
+        }
 
-      .cls-4 {
-        fill: #ff8000;
-      }
-    </style>
-  </defs>
-  <g id="Layer_1-2" data-name="Layer 1">
-    <g>
-      <rect class="cls-1" width="89.96" height="89.96" rx="4.71" ry="4.71"/>
+        .cls-4 {
+          fill: #ff8000;
+        }
+      </style>
+    </defs>
+    <g id="Layer_1-2" data-name="Layer 1">
       <g>
-        <rect class="cls-4" x="35.77" width="18.43" height="19.15"/>
-        <rect class="cls-3" x="35.77" y="18.43" width="18.43" height="19.72"/>
-        <polygon class="cls-2" points="54.19 65.73 44.98 56.52 35.77 65.73 35.77 36.85 54.19 36.85 54.19 65.73"/>
+        <rect class="cls-1" width="89.96" height="89.96" rx="4.71" ry="4.71"/>
+        <g>
+          <rect class="cls-4" x="35.77" width="18.43" height="19.15"/>
+          <rect class="cls-3" x="35.77" y="18.43" width="18.43" height="19.72"/>
+          <polygon class="cls-2" points="54.19 65.73 44.98 56.52 35.77 65.73 35.77 36.85 54.19 36.85 54.19 65.73"/>
+        </g>
       </g>
     </g>
-  </g>
-</svg>
-  `;
+  </svg>
+    `;
 
-  li.appendChild(link);
+    li.appendChild(link);
+    navList.appendChild(li);
 
-  // 4a) Append at end:
-  navList.appendChild(li);
-
-  link.addEventListener('click', openModal);
+    link.addEventListener('click', openModal);
+  }
 
   function openModal() {
-    // overlay
     chrome.runtime.sendMessage({type: 'FETCH_RANDOM_MOVIE'});
 
     const overlay = document.createElement('div');
     overlay.id = 'unboxd-overlay';
     document.body.appendChild(overlay);
 
-    // modal
     const modal = document.createElement('div');
     modal.id = 'unboxd-modal';
     modal.innerHTML = `
-      <h2>Unboxd</h2>
+      <h2 style="color:#fff"><strong>un<span style="color:#ff8000">b</span><span style="color:#01e054">o</span><span style="color:#40bcf4">x</span>d</strong></h2>      
       <div id="unboxd-list">Loading…</div>
       <div id="unboxd-buttons-set"> 
         <button id="unboxd-close">Close [×]</button>
       </div>
-        `;
+    `;
     document.body.appendChild(modal);
 
-    document
-      .getElementById('unboxd-close')
-      .addEventListener('click', () => {
-        overlay.remove();
-        modal.remove();
-      });
-
+    document.getElementById('unboxd-close').addEventListener('click', () => {
+      overlay.remove();
+      modal.remove();
+    });
   }
+
+  const signInLabel = document.querySelector(
+    '#header > section > div.react-component > div > nav > ul > li.navitem.sign-in-menu > a > span.label'
+  );
+
+  const isSignedIn = signInLabel ? signInLabel.textContent.trim().toLowerCase() !== 'sign in' : true;
+
+  if (isSignedIn && sessionStatus["isSessionActive"]) { 
+    injectUnboxdLauncher();
+  }
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && changes.isSessionActive) {
+      const newValue = changes.isSessionActive.newValue;
+      if (newValue) {
+        injectUnboxdLauncher();
+      } else {
+        removeUnboxdUI();
+      }
+    }
+  });
 })();
 
 const s = document.createElement('script');
@@ -121,37 +134,28 @@ window.addEventListener('message', event => {
   });
 });
 
-chrome.runtime.onMessage.addListener(async (msg, sender) => {
-  if (msg.type !== 'RUN_SYNC') return;
-  const { username, lastWatchedId, lastWatchlistedId } = msg;
-
-  // We can use `fetch` + `DOMParser` here:
-  const newlyWatched    = await collectNewlyWatched(lastWatchedId, username);
-  const newlyWatchlisted = await collectNewlyWatchlisted(lastWatchlistedId, username);
-
-  console.log(`Sync complete for ${username}: +${newlyWatched.length} watched, +${newlyWatchlisted.length} watchlisted.`);
-
-  // Send the results back to the SW for storage:
-  chrome.runtime.sendMessage({
-    type: 'SYNC_RESULTS',
-    username: username,
-    newlyWatched,
-    newlyWatchlisted
-  });
-});
-
 let movies = [];
 let currentIndex = 0;
 
 // called whenever you want to display movies[currentIndex]
 async function showMovie(i) {
+  
   const movie = movies[i];
   const listEl = document.getElementById('unboxd-list');
   const modal  = document.getElementById('unboxd-modal');
-  listEl.innerHTML = `<div class="unboxd-loading">Loading movie details…</div>`;
-  modal.querySelector('h2').textContent = `Loading…`;
+  const store = await chrome.storage.local.get(['active_csrfToken']);
+  const csrfToken = store.active_csrfToken;
+
+  if (!csrfToken) {
+    return alert("CSRF token missing.");
+  }
 
   try {
+    chrome.runtime.sendMessage({
+      type: 'REMOVE_MOVIE',
+      movie: movie
+    });
+    
     const details = await fetchMovieDetails(movie.title, movie.year, movie.overview);
     const requiredFields = [
       'movieName', 'movieId', 'slug',
@@ -159,7 +163,7 @@ async function showMovie(i) {
     ];
     const hasAllRequired = requiredFields.every(key => details[key] && details[key] !== '');
 
-    if (!hasAllRequired) {
+    if (!hasAllRequired || details["genres"].length == 0) {
       console.warn(`Skipping movie "${movie.title}" due to missing fields.`);
       currentIndex++;
       if (currentIndex < movies.length) {
@@ -185,15 +189,27 @@ async function showMovie(i) {
       document.getElementById('unboxd-overlay').remove();
       modal.remove();
     };
+
     // wire next
     document.getElementById('btn-next-movie').onclick = () => {
+      const nextBtn = document.getElementById('btn-next-movie');
+
+      // Replace text with spinner
+      nextBtn.innerHTML = `<span class="spinner"></span>`;
+      nextBtn.disabled = true;
+
       currentIndex++;
       if (currentIndex < movies.length) {
         showMovie(currentIndex);
       } else {
-        chrome.runtime.sendMessage({type:'FETCH_RANDOM_MOVIE'});
+        chrome.runtime.sendMessage({ type: 'FETCH_RANDOM_MOVIE' });
       }
     };
+    const preloadLink = document.createElement("link");
+    preloadLink.rel = "preload";
+    preloadLink.as = "image";
+    preloadLink.href = details.posterUrl;
+    document.head.appendChild(preloadLink);
 
     listEl.innerHTML = `
       <div class="unboxd-card">
@@ -206,7 +222,7 @@ async function showMovie(i) {
             <span class="stars">${'★'.repeat(Math.round(details.averageRating || 0))}</span>
             <span class="rating-count">(${details.ratingCount || 0} ratings)</span>
           </div>
-          <p class="overview">${movie.overview || 'No description available.'}</p>
+            <p class="overview">${movie.overview ? (movie.overview.split(' ').length > 40 ? movie.overview.split(' ').slice(0, 40).join(' ') + '...' : movie.overview) : 'No description available.'}</p>
           <div class="sluglists">
             <div class="genres">Genres: ${details.genres.map(g =>
               `<a href="https://letterboxd.com/films/genre/${g}/" target="_blank">${g}</a>`
@@ -253,16 +269,41 @@ async function showMovie(i) {
     });
 
     widget.addEventListener('mouseleave', () => {
-      paintStars(currentRating); // restore previous
+      paintStars(currentRating);
     });
 
-    widget.addEventListener('click', e => {
+    widget.addEventListener('click', async e => {
       const rect = widget.getBoundingClientRect();
       const x = e.clientX - rect.left;
       let newRating = Math.min(5, Math.max(0, (x / rect.width) * 5));
       currentRating = Math.round(newRating * 2) / 2;
       paintStars(currentRating);
-      console.log(currentRating);
+      // select components having the css clas star-fg and change the fill color to #f5c518
+      widget.querySelectorAll('.star-fg').forEach(fg => {
+        fg.style.fill = '#f5c518'; // Gold
+      });
+
+      console.log(`Rating: ${currentRating}`);
+
+      const slug = `https://letterboxd.com/s/film:${details.movieId}/rate/`;
+
+      const ratingValue = Math.round(currentRating * 2);
+
+      const resp = await fetch(slug, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: `__csrf=${encodeURIComponent(csrfToken)}&rating=${ratingValue}`
+      });
+
+
+      if (!resp.ok) {
+        console.error(await resp.text());
+        return alert(`Could not rate the movie. Please try again later :(`);
+      }
     });
 
     // 3) Wire up the buttons
@@ -271,23 +312,14 @@ async function showMovie(i) {
     const watchlistBtn = document.getElementById('btn-watchlist');
     watchlistBtn.addEventListener('click', async () => {
       const modal     = document.getElementById('unboxd-modal');
-      const movieId   = modal.dataset.movieId;
       const movieName = modal.querySelector('.film-poster').alt;
 
       let slug = await formatMovieName(movieName, movie.year, movie.overview);
-
-      // pull CSRF & user (username only for message)
-      const store     = await chrome.storage.local.get(['activeUsername','active_csrfToken']);
-      const { activeUsername, active_csrfToken: csrfToken } = store;
-      if (!csrfToken) {
-        return alert("CSRF token missing, please try again later.");
-      }
-
       // Build the endpoint URL
       const url = `https://letterboxd.com/film/${slug}/${action}/`;
 
       // Fire the POST
-      const resp = await fetch(url, {
+      fetch(url, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -297,36 +329,19 @@ async function showMovie(i) {
         body: `__csrf=${encodeURIComponent(csrfToken)}`
       });
 
-      if (!resp.ok) {
-        console.error(await resp.text());
-        return alert(`❌ Could not ${isCurrentlyWatchlisted ? 'remove from' : 'add to'} watchlist.`);
-      }
-
       // Update UI
       if (isCurrentlyWatchlisted) {
         watchlistBtn.textContent = '＋ Watchlist';
         watchlistBtn.classList.remove('done');
         isCurrentlyWatchlisted = false;
         action = 'add-to-watchlist';
-        alert(`Removed "${movieName}" from ${activeUsername}’s watchlist.`);
       } else {
         watchlistBtn.textContent = '✓ Watchlisted';
         watchlistBtn.classList.add('done');
         isCurrentlyWatchlisted = true;
         action = 'remove-from-watchlist'; 
-        alert(`Added "${movieName}" to ${activeUsername}’s watchlist.`);
       }
     });
-
-    // NEXT MOVIE BUTTON.
-    document.getElementById('btn-next-movie').onclick = () => {
-      currentIndex++;
-      if (currentIndex < movies.length) {
-        showMovie(currentIndex);
-      } else {
-        chrome.runtime.sendMessage({type:'FETCH_RANDOM_MOVIE'});
-      }
-    };
 
   } catch (err) {
     console.warn(err);
@@ -349,5 +364,228 @@ chrome.runtime.onMessage.addListener(async (msg) => {
     } else {
       showMovie(0);
     }
+  }
+  if (msg.type === 'RUN_SYNC'){
+    const { username, lastWatchedId, lastWatchlistedId } = msg;
+
+    // We can use `fetch` + `DOMParser` here:
+    const newlyWatched    = await collectNewlyWatched(lastWatchedId, username);
+    const newlyWatchlisted = await collectNewlyWatchlisted(lastWatchlistedId, username);
+
+    console.log(`Sync complete for ${username}: +${newlyWatched.length} watched, +${newlyWatchlisted.length} watchlisted.`);
+
+    // Send the results back to the SW for storage:
+    chrome.runtime.sendMessage({
+      type: 'SYNC_RESULTS',
+      username: username,
+      newlyWatched,
+      newlyWatchlisted
+    });
+  }
+  if (msg.type === "SYNC_COMPLETE") {
+    console.log("SYNC_COMPLETE MESSAGE RECEIVED")
+    const { username, newWatchedLength, newWatchlistedLength } = msg;
+
+    // Build alert container
+    const container = document.createElement('div');
+    container.className = 'unboxd-sync-toast';
+    container.innerHTML = `
+      <div class="toast-content">
+        <div class="toast-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 162.84 187.16">
+            <defs>
+              <style>
+                .cls-1 { fill: #2c343f; }
+                .cls-2 { fill: #40bcf4; }
+                .cls-3 { fill: #01e054; }
+                .cls-4 { fill: #ff8000; }
+              </style>
+            </defs>
+            <g>
+              <circle class="cls-4" cx="98.57" cy="95.65" r="19.97"/>
+              <circle class="cls-3" cx="55.27" cy="57.5" r="19.97"/>
+              <circle class="cls-2" cx="98.57" cy="19.97" r="19.97"/>
+              <path class="cls-1" d="M161.46,76.35l-35.06,35.06v71.04c0,2.6-2.11,4.71-4.71,4.71H41.15c-2.6,0-4.71-2.11-4.71-4.71v-71.04L1.38,76.35c-1.84-1.83-1.84-4.82,0-6.65l9.25-9.25c1.84-1.84,4.82-1.84,6.65,0l36.76,36.75h54.77l36.75-36.75c1.84-1.84,4.82-1.84,6.65,0l9.25,9.25c1.84,1.83,1.84,4.82,0,6.65Z"/>
+            </g>
+          </svg>
+        </div>
+        <div class="toast-message">
+          <strong>Sync Complete! Enjoy unboxd</strong><br>
+          ${newWatchedLength} new watched and ${newWatchlistedLength} new watchlisted movies for <b>${username}</b>.
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(container);
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      container.remove();
+    }, 7000);
+  }
+
+  if (msg.type === "RESET_COMPLETE") {
+    console.log("HERE"); 
+    let container = document.querySelector('.unboxd-sync-toast');
+
+    if (!container) {
+      // Create new toast if it doesn't exist
+      container = document.createElement('div');
+      container.className = 'unboxd-sync-toast';
+      document.body.appendChild(container);
+    }
+
+    // Always update the toast's contents
+    container.innerHTML = `
+      <div class="toast-content">
+        <div class="toast-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 162.84 187.16">
+            <defs>
+              <style>
+                .cls-1 { fill: #2c343f; }
+                .cls-2 { fill: #40bcf4; }
+                .cls-3 { fill: #01e054; }
+                .cls-4 { fill: #ff8000; }
+              </style>
+            </defs>
+            <g>
+              <circle class="cls-4" cx="98.57" cy="95.65" r="19.97"/>
+              <circle class="cls-3" cx="55.27" cy="57.5" r="19.97"/>
+              <circle class="cls-2" cx="98.57" cy="19.97" r="19.97"/>
+              <path class="cls-1" d="M161.46,76.35l-35.06,35.06v71.04c0,2.6-2.11,4.71-4.71,4.71H41.15c-2.6,0-4.71-2.11-4.71-4.71v-71.04L1.38,76.35c-1.84-1.83-1.84-4.82,0-6.65l9.25-9.25c1.84-1.84,4.82-1.84,6.65,0l36.76,36.75h54.77l36.75-36.75c1.84-1.84,4.82-1.84,6.65,0l9.25,9.25c1.84,1.83,1.84,4.82,0,6.65Z"/>
+            </g>
+          </svg>
+        </div>
+        <div class="toast-message">
+          <strong>unboxd reset!</strong><br>
+          Refresh the page to continue enjoying unboxd.
+        </div>
+      </div>
+    `;
+
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      container.remove();
+    }, 7000);
+  }
+});
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg.type === "CHECK_LOGIN_STATUS") {
+    const signInLabel = document.querySelector(
+      '#header > section > div.react-component > div > nav > ul > li.navitem.sign-in-menu > a > span.label'
+    );
+
+    const isSignedIn = signInLabel
+      ? signInLabel.textContent.trim().toLowerCase() !== 'sign in'
+      : true;
+
+    sendResponse({ loggedIn: isSignedIn });
+  }
+});
+
+// event li
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === "UNBOXD_COMPLETED") {
+    if (document.querySelector('#unboxd-completion-overlay')) return; // prevent duplicates
+
+    const existingOverlay = document.querySelector('#unboxd-overlay');
+    if (!existingOverlay) {
+      console.warn('No #unboxd-overlay element found!');
+      return;
+    }
+
+    // Change the ID so we can style it differently and detect it's the completion overlay
+    existingOverlay.id = 'unboxd-completion-overlay';
+    document.querySelector('#unboxd-modal')?.remove();
+    existingOverlay.innerHTML = `
+      <div class="unboxd-celebration">
+        <h1 class="unboxd-title">🎉 All Done!</h1>
+        <p class="unboxd-message">
+          Thank you for choosing <strong>un<span style="color:#ff8000">b</span><span style="color:#01e054">o</span><span style="color:#40bcf4">x</span>d</strong>.<br>
+          You're a true <span class="highlight">cinephile</span>.
+        </p>
+        <button class="unboxd-close-btn">Close</button>
+        <canvas id="confetti-canvas"></canvas>
+      </div>
+    `;
+
+    // Add style only if not present yet
+    if (!document.getElementById('unboxd-completion-style')) {
+      const style = document.createElement('style');
+      style.id = 'unboxd-completion-style';
+      style.textContent = `
+        #unboxd-completion-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(20, 23, 28, 0.96);
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        .unboxd-celebration {
+          text-align: center;
+          padding: 2rem;
+          max-width: 400px;
+          position: relative;
+        }
+
+        .unboxd-title {
+          font-size: 2rem;
+          margin-bottom: 1rem;
+          color: #ff8000;
+        }
+
+        .unboxd-message {
+          font-size: 1.1rem;
+          color: #ccc;
+          margin-bottom: 2rem;
+        }
+
+        .highlight {
+          color: #40bcf4;
+          font-weight: bold;
+        }
+
+        .unboxd-close-btn {
+          background: #ff8000;
+          border: none;
+          padding: 0.75rem 1.5rem;
+          font-size: 1rem;
+          color: white;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+
+        .unboxd-close-btn:hover {
+          background: #e67300;
+        }
+
+        #confetti-canvas {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Close button handler: revert changes on close
+    existingOverlay.querySelector('.unboxd-close-btn').addEventListener('click', () => {
+      existingOverlay.id = 'unboxd-overlay';
+      existingOverlay.innerHTML = '';
+      document.querySelector('#unboxd-overlay')?.remove();
+      document.querySelector('#unboxd-modal')?.remove();
+    });
+
+    importConfettiAndRun();
   }
 });
