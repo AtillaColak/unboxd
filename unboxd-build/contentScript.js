@@ -314,7 +314,7 @@ async function showMovie(i) {
       const modal     = document.getElementById('unboxd-modal');
       const movieName = modal.querySelector('.film-poster').alt;
 
-      let slug = await formatMovieName(movieName, movie.year, movie.overview);
+      let slug = details.slug;
       // Build the endpoint URL
       const url = `https://letterboxd.com/film/${slug}/${action}/`;
 

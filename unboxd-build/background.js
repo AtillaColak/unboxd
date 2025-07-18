@@ -4,11 +4,6 @@ const GLOBAL_KEYS = {
   MOVIES: 'movies'
 };
 
-// Helpers
-function todayString() {
-  return new Date().toISOString().split('T')[0]; // “YYYY-MM-DD”
-}
-
 async function seedUnboxdDefaults() {
   let initialMovies = [];
   let movies = [];
@@ -92,7 +87,17 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
 
     const watchedId = store[watchedKey] ?? -1;
     const watchlistedId = store[watchlistedKey] ?? -1;
-    const doSync = store[lastSyncedKey] != todayString();
+    const lastSynced = store[lastSyncedKey];
+    const now = new Date();
+
+    let doSync = true;
+
+    if (lastSynced) {
+      const lastSyncDate = new Date(lastSynced);
+      const hoursPassed = (now - lastSyncDate) / (1000 * 60 * 60); // ms → hours
+
+      doSync = hoursPassed >= 12;
+    }
 
     if(doSync){
       chrome.tabs.sendMessage(sender.tab.id, {
@@ -152,7 +157,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
 
     // persist!
     await chrome.storage.local.set({
-      [lastSyncedKey]:    new Date().toISOString().slice(0,10),
+      [lastSyncedKey]:    new Date().toISOString(),
       [watchedKey]:       newLastWatched,
       [watchlistedKey]:   newLastWatchlisted,
       [moviesKey]:        updatedMovies

@@ -43,5 +43,4 @@ Tasks are rated from 1-5 on difficulty and time it'd take to complete.
 ## TODO TODAY
 * fix the logo and finalize the webstore-related design implications (4). 
 * Optimixe the code. (such as making sure smart naming is called once per movie since it's costly timewise.)
-* increase fetch frequency to every 6 hours. 
 * Comment, modularize, make more readable, and document the code 
