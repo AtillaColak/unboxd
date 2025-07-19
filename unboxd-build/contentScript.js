@@ -63,8 +63,8 @@
     link.addEventListener('click', openModal);
   }
 
-  function openModal() {
-    chrome.runtime.sendMessage({type: 'FETCH_RANDOM_MOVIE'});
+  async function openModal() {
+    const { isSyncing } = await chrome.storage.local.get(["isSyncing"]);
 
     const overlay = document.createElement('div');
     overlay.id = 'unboxd-overlay';
@@ -74,12 +74,16 @@
     modal.id = 'unboxd-modal';
     modal.innerHTML = `
       <h2 style="color:#fff"><strong>un<span style="color:#ff8000">b</span><span style="color:#01e054">o</span><span style="color:#40bcf4">x</span>d</strong></h2>      
-      <div id="unboxd-list">Loading…</div>
+      <div id="unboxd-list">${isSyncing ? 'Sync in progress…' : 'Loading…'}</div>
       <div id="unboxd-buttons-set"> 
         <button id="unboxd-close">Close [×]</button>
       </div>
     `;
     document.body.appendChild(modal);
+
+    if (!isSyncing) {
+      chrome.runtime.sendMessage({ type: 'FETCH_RANDOM_MOVIE' });
+    }
 
     document.getElementById('unboxd-close').addEventListener('click', () => {
       overlay.remove();

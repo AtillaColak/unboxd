@@ -100,6 +100,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
     }
 
     if(doSync){
+      await chrome.storage.local.set({"isSyncing": true});
       chrome.tabs.sendMessage(sender.tab.id, {
         type: 'RUN_SYNC',
         username: newUsername,
@@ -163,6 +164,7 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
       [moviesKey]:        updatedMovies
     });
 
+    await chrome.storage.local.set({"isSyncing": false});
     chrome.tabs.sendMessage(sender.tab.id, {
       type: 'SYNC_COMPLETE',
       username: username,
