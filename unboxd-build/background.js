@@ -51,14 +51,15 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
     const prevUsername = store.activeUsername;
     const prevCsrfToken = store.active_csrfToken;
 
-    if(!store.activeUsername || !store.active_csrfToken){
+    if (!prevUsername || !prevCsrfToken) {
       await chrome.storage.local.set({
         "activeUsername": newUsername,
         "active_csrfToken": newCsrfToken
       });
     }
 
-    const isSameUser = newUsername === prevUsername && newCsrfToken === prevCsrfToken;
+    const isSameUser = newUsername === prevUsername;
+    const isSameToken = newCsrfToken === prevCsrfToken;
 
     if (!isSameUser && prevUsername) {
       const keysToRemove = [
@@ -74,6 +75,13 @@ chrome.runtime.onMessage.addListener(async (msg, sender) => {
         "activeUsername": newUsername,
         "active_csrfToken": newCsrfToken
       });
+    }
+
+    if (isSameUser && !isSameToken) {
+      await chrome.storage.local.set({
+        "active_csrfToken": newCsrfToken
+      });
+      console.log(`Unboxd: Updated CSRF token for ${newUsername}`);
     }
 
     const lastSyncedKey    = `${newUsername}_lastSynced`;
