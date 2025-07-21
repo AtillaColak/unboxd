@@ -4,9 +4,7 @@
   "version": "0.1.0",
   "description": "A Letterboxd browser extension to make the retrospective film logging process painless.",
   "permissions": [
-    "storage",
-    "alarms",
-    "scripting"
+    "storage"
   ],
   "host_permissions": [
     "https://letterboxd.com/*"
