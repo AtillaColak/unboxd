@@ -2,6 +2,8 @@
 
 <i>**PS**: if you're not seeing the full icon logo, why are you using github on light mode to begin with?</i>
 
+https://chromewebstore.google.com/detail/unboxd/bneppjkpkdknjppkikhjpohhbgjleolo
+
 ## What's this? 
 A Letterboxd browser extension to make the retrospective film logging process painless. Something like this is especially annoying if you are new to the app and you have a ton of movies you've watched and would've liked already logged in your newly created account. Given that's an impossibly arbitrary ideal, **unboxd** is closer to it than any existing solution get.
 
