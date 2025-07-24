@@ -5,6 +5,38 @@
   <title>Unboxd Overview</title>
   <link rel="stylesheet" href="styles/widget.css" />
   <style>
+
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid #2c343f;
+      margin-bottom: 1rem;
+    }
+
+    .tab-nav button {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 0.75rem;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 1rem;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .tab-nav button.active {
+      color: #fff;
+      border-bottom: 2px solid #40bcf4;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
     body {
       margin: 0;
       padding: 1rem;
@@ -154,10 +186,52 @@
       color: #40bcf4;
     }
 
-  </style>
+    .unboxd-card {
+      display: flex;
+      gap: 1rem;
+      background: #1f242c;
+      border-radius: 8px;
+      padding: 0.75rem;
+      box-shadow: 0 0 0 1px #2c343f;
+      margin-bottom: 1rem;
+    }
+
+    .poster-container img {
+      width: 80px;
+      border-radius: 4px;
+    }
+
+    .film-info {
+      flex: 1;
+    }
+
+    .rating-widget {
+      display: flex;
+      margin-top: 0.5rem;
+      gap: 4px;
+      cursor: pointer;
+    }
+
+    .star-input svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .star-fg {
+      fill: #444;
+      transition: fill 0.2s ease;
+    }
+
+    .star-input.full .star-fg,
+    .star-input.half .star-fg {
+      fill: #f5c518;
+    }
+
+</style>
 </head>
 <body>
-  <header>
+
+    <header>
     <div class="logo">
       <!-- Your Unboxd Logo SVG -->
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 175.88 37.57" width="120">
@@ -181,6 +255,12 @@
     </div>
   </header>
 
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="instructions">Instructions</button>
+  </div>
+
+  <div class="tab-content active" id="overview">
   <div id="unboxd-stats">
     <!-- here would go some nicely styles statistics shown (how many movies waitlisted or rated with unboxd so far) -->
   </div>
@@ -200,9 +280,18 @@
         <svg width="25px" height="25px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#40bcf4"><path fill-rule="evenodd" clip-rule="evenodd" d="M2.006 8.267L.78 9.5 0 8.73l2.09-2.07.76.01 2.09 2.12-.76.76-1.167-1.18a5 5 0 0 0 9.4 1.983l.813.597a6 6 0 0 1-11.22-2.683zm10.99-.466L11.76 6.55l-.76.76 2.09 2.11.76.01 2.09-2.07-.75-.76-1.194 1.18a6 6 0 0 0-11.11-2.92l.81.594a5 5 0 0 1 9.3 2.346z"/></svg>
       </div>
     </div>
-    
+  </div>
   </div>
 
+  <div class="tab-content" id="instructions">
+    <h2 style="font-size: 1.1rem;">How unboxd Works</h2>
+    <ul style="padding-left: 1rem;">
+      <li>A box icon is injected to the letterboxd.com header (if you're logged in).</li>
+      <li>This box opens up a modal where you can quickly go through top movies.</li>
+      <li>From there, you can rate or add to your watchlist.</li>
+      <li>The "Overview" tab of this popup helps you perform additional extension actions (disabling or resetting unboxd). Enjoy!</li>
+    </ul>
+  </div>
 
   <footer>
     <span>Follow me:</span>
@@ -210,6 +299,6 @@
     <a href="https://letterboxd.com/Att1laTheHun/" target="_blank">Letterboxd</a>
   </footer>
 
-  <script src="popup.js"></script>
+  <script type="module" src="popup.js"></script>
 </body>
 </html>

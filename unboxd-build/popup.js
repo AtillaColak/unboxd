@@ -28,6 +28,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const store = await chrome.storage.local.get(["isSessionActive"]);
   checkbox.checked = !!store["isSessionActive"];
 
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabContents = document.querySelectorAll(".tab-content");
+  const activeTab = document.querySelector(".tab-btn.active")?.dataset.tab;
+  if (activeTab === "instructions") return;
+
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs[0];
     const url = tab.url;
@@ -88,3 +93,23 @@ async function renderStats() {
   `;
 }
 
+// UI UPDATES
+const tabButtons = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
+
+tabButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    const target = button.getAttribute("data-tab");
+
+    tabButtons.forEach(btn => btn.classList.remove("active"));
+    button.classList.add("active");
+
+    tabContents.forEach(tab => {
+      if (tab.id === target) {
+        tab.classList.add("active");
+      } else {
+        tab.classList.remove("active");
+      }
+    });
+  });
+});
